@@ -12,14 +12,13 @@ public:
   // Methods for setting/getting properties or performing operations
   void set_position(const Vector2 &new_position) { m_position = new_position; }
   Vector2 get_position() const { return m_position; }
-
-  void apply_force(const Vector2 &force) {
+  void apply_force(const Vector2 &force, float delta) {
     // Applying force: F = ma (assuming constant mass)
     // Calculate acceleration using F = ma -> a = F / m
     Vector2 acceleration = force / m_mass;
 
     // Update velocity using the calculated acceleration
-    m_velocity += acceleration;
+    m_velocity += acceleration * delta;
   }
   // Other physics-related methods
 
