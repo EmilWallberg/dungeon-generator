@@ -5,15 +5,16 @@ from SCons.Script import *
 vars = Variables(None, ARGUMENTS)
 vars.Add(EnumVariable('BUILD_TYPE', 'type of build to use', 'debug',  allowed_values=('debug', 'release', 'profile')))
 vars.Add(EnumVariable('COMPILEDB', 'Generate compile_commands.json', 'true',  allowed_values=('false', 'true')))
+vars.Add(EnumVariable('platform', 'compile platform', 'current',  allowed_values=('macos', 'linux', 'windows', 'current')))
 env = Environment(variables=vars)
 
-if 'PLATFORM' not in COMMAND_LINE_TARGETS:
+if env["platform"] == 'current':
     platform = pf.system().lower()
 else:
-    platform = COMMAND_LINE_TARGETS[0].lower()
+    platform = env["platform"]
 
 sources = Glob("src/**.cpp")
-env.Append(CPPPATH=["src/", "includes/"])
+env.Append(CPPPATH=["src/", "."])
 build_type = ARGUMENTS.get('build', 'debug').lower()
 output_dir = f'build/{platform}'
 
@@ -32,6 +33,11 @@ build_flags = {
         'release': (['-O3', '-DNDEBUG', '-std=c++20'],),
         'debug': (['-g', '-O0', '-std=c++20'],),
         'profile': (['-pg', '-O2', '-std=c++20'],)
+    },
+    'windows': {
+        'release': (['/O2', '/DNDEBUG', '/std:c++20'],),
+        'debug': (['/DEBUG', '/Od', '/std:c++20'],),
+        'profile': (['/PROFILE', '/O2', '/std:c++20'],)
     }
 }
 

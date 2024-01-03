@@ -1,8 +1,1 @@
-[
-    {
-        "command": "g++ -o src/test.o -c -g -O0 -std=c++20 -Isrc -Iincludes src/test.cpp",
-        "directory": "/mnt/c/dev/dungeon-generator/libs/ewdg",
-        "file": "src/test.cpp",
-        "output": "src/test.o"
-    }
-]
+[]
