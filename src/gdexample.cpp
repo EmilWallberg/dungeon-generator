@@ -1,21 +1,21 @@
 #include "gdexample.h"
-#include "libs/ewdg/ewgd.h"
 #include <godot_cpp/classes/array_mesh.hpp>
+#include <godot_cpp/classes/immediate_mesh.hpp>
 #include <godot_cpp/classes/mesh.hpp>
+#include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/orm_material3d.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/packed_int32_array.hpp>
 #include <godot_cpp/variant/packed_vector3_array.hpp>
 
 using namespace godot;
 
-void GDExample::_bind_methods() {}
-
 GDExample::GDExample() {
   // Initialize any variables here.
   time_passed = 0.0;
 }
 
-PackedVector3Array convertVector(const std::vector<ewgd::Vector3> &vec) {
+PackedVector3Array convertVector(const std::vector<ewdg::Vector3> &vec) {
   PackedVector3Array packed_array;
   packed_array.resize(vec.size());
 
@@ -41,11 +41,33 @@ GDExample::~GDExample() {
   // Add your cleanup here.
 }
 
+void GDExample::line(ewdg::Vector3 pos1, ewdg::Vector3 pos2, Color c) {
+  auto mesh_instace = new MeshInstance3D();
+  auto immediate_mesh = new ImmediateMesh();
+  auto material = new ORMMaterial3D();
+
+  mesh_instace->set_mesh(immediate_mesh);
+  mesh_instace->set_cast_shadows_setting(
+      GeometryInstance3D::ShadowCastingSetting::SHADOW_CASTING_SETTING_OFF);
+
+  immediate_mesh->surface_begin(Mesh::PRIMITIVE_LINES, material);
+  immediate_mesh->surface_add_vertex(Vector3(pos1.x, pos1.y, pos1.z));
+  immediate_mesh->surface_add_vertex(Vector3(pos2.x, pos2.y, pos2.z));
+  immediate_mesh->surface_end();
+
+  material->set_shading_mode(
+      BaseMaterial3D::ShadingMode::SHADING_MODE_UNSHADED);
+  material->set_albedo(c);
+
+  add_child(mesh_instace);
+}
+
 void GDExample::_ready() {
   auto surface_array = Array();
   surface_array.resize(Mesh::ArrayType::ARRAY_MAX);
-  d.generate_rooms(200, 20, 100);
-  // d.simulate_rooms(1, 0.99, 0.1);
+  d.generate_rooms(room_to_be_generated, 20, 100);
+  d.simulate_rooms(10, 0.5, simulation_timestep);
+
   auto room_mesh = d.generate_mesh();
 #ifdef DEBUG
   printf("Index array size: %zi\n", room_mesh.second.size());
@@ -76,17 +98,22 @@ void GDExample::_ready() {
   auto _mesh = new ArrayMesh();
   _mesh->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES,
                                  surface_array);
-  set_mesh(Ref<Mesh>(_mesh));
+  set_mesh(_mesh);
+
+  d.make_graf_layout(25, 10);
+  std::printf("Graf edges: %zi", d.delaunay.edges.size());
+  for (ewdg::Edge<ewdg::Room> e : d.dungeon_layout) {
+    auto pos1 = ewdg::Vector3(e.from->position.x, 0, e.from->position.y);
+    auto pos2 = ewdg::Vector3(e.to->position.x, 0, e.to->position.y);
+    line(pos1, pos2);
+  }
 }
 
 void GDExample::_process(double delta) {
   time_passed += delta;
 
-  // Vector3 new_position = Vector3(10.0 + (10.0 * sin(time_passed * 2.0)),
-  // 10.0 + (10.0 * cos(time_passed * 1.5)), 0.0f);
-  // set_position(new_position);
-  if (!simulation_done) {
-    simulation_done = d.time_step_rooms(1000, 100, 0.8 * delta);
+  if (false && !simulation_done) {
+    simulation_done = d.time_step_rooms(10, 1, simulation_timestep);
 
     auto room_mesh = d.generate_mesh();
 #ifdef DEBUG
@@ -121,6 +148,6 @@ void GDExample::_process(double delta) {
     auto _mesh = new ArrayMesh();
     _mesh->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES,
                                    surface_array);
-    set_mesh(Ref<Mesh>(_mesh));
+    set_mesh(_mesh);
   }
 }

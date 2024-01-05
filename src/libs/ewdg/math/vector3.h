@@ -2,7 +2,7 @@
 #define VECTOR3_H_
 #include <math.h>
 
-namespace ewgd {
+namespace ewdg {
 class Vector3 {
 public:
   float x, y, z;
@@ -49,5 +49,5 @@ public:
     return *this;
   }
 };
-} // namespace ewgd
+} // namespace ewdg
 #endif // VECTOR3_H_

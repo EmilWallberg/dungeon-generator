@@ -3,11 +3,12 @@
 
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 
-namespace ewgd {
+namespace ewdg {
 struct Vector2 {
-  float x, y;
-  Vector2(float x, float y) : x(x), y(y) {}
+  double x, y;
+  Vector2(double x, double y) : x(x), y(y) {}
   Vector2() {
     x = 0.0f;
     y = 0.0f;
@@ -62,7 +63,7 @@ struct Vector2 {
   }
 
   // Scalar division operator
-  friend Vector2 operator/(const Vector2 &v, float scalar) {
+  friend Vector2 operator/(const Vector2 &v, double scalar) {
     if (scalar != 0) {
       return {v.x / scalar, v.y / scalar};
     } else {
@@ -71,7 +72,7 @@ struct Vector2 {
   }
 
   // Magnitude of the vector
-  float magnitude() const { return std::sqrt(x * x + y * y); }
+  float length() const { return std::sqrt(x * x + y * y); }
 
   // Quake III Arena's Fast Inverse Square Root
   static float Q_rsqrt(float number) {
@@ -102,7 +103,11 @@ struct Vector2 {
 
   // Comparison operators
   friend bool operator==(const Vector2 &v1, const Vector2 &v2) {
-    return v1.x == v2.x && v1.y == v2.y;
+    // Define a tolerance for floating-point comparison
+    const double epsilon = 1e-8; // You can adjust this value as needed
+
+    // Check if the difference between components is within the tolerance
+    return std::abs(v1.x - v2.x) < epsilon && std::abs(v1.y - v2.y) < epsilon;
   }
 
   friend bool operator!=(const Vector2 &v1, const Vector2 &v2) {
@@ -127,6 +132,11 @@ struct Vector2 {
   friend bool operator>=(const Vector2 &v1, const Vector2 &v2) {
     return !(v1 < v2);
   }
+  const char *toString() const {
+    static char buffer[50];
+    snprintf(buffer, sizeof(buffer), "(%.2f, %.2f)", x, y);
+    return buffer;
+  }
 };
-} // namespace ewgd
+} // namespace ewdg
 #endif // VECTOR2_H_

@@ -2,7 +2,7 @@
 #define RECT_H_
 #include "math/vector2.h"
 #include "rigit_body_2d.h"
-namespace ewgd {
+namespace ewdg {
 class Rect : public RigidBody2D {
 public:
   float width;
@@ -24,8 +24,11 @@ public:
     return position + Vector2(-width / 2, height / 2);
   }
 
-  Rect(float width, float height)
-      : RigidBody2D(), width(width), height(height) {}
+  double get_area() const { return width * height; };
+
+  Rect(float width, float height, Vector2 position = Vector2(),
+       Vector2 velocity = Vector2(), float mass = 1.0f)
+      : RigidBody2D(position, velocity, mass), width(width), height(height) {}
 
   bool checkCollision(const Rect &other) {
     Vector2 br_corner = get_bottomright_corner();
@@ -38,5 +41,5 @@ public:
         br_corner.y < other_tl_corner.y || tl_corner.y > other_br_corner.y);
   }
 };
-} // namespace ewgd
+} // namespace ewdg
 #endif // RECT_H_

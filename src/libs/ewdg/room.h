@@ -3,40 +3,17 @@
 
 #include "math/vector2.h"
 #include "math/vector3.h"
+#include "physics_engine/rect.h"
 #include <iostream>
 #include <vector>
-namespace ewgd {
-class Room {
+namespace ewdg {
+class Room : public Rect {
 public:
-  Vector2 center;
-  float width;
-  float height;
   float floor_to_ceiling = 3.0f;
 
-  Room(const Vector2 &c, float w, float h) : center(c), width(w), height(h) {}
-  Room() {
-    center = Vector2();
-    width = 10.0f;
-    height = 100.0f;
-  }
-  float get_area() { return width * height; };
-
-  // Functions to get room corners based on center, width, and height
-  Vector2 get_topleft_corner() const {
-    return center + Vector2(-width / 2, -height / 2);
-  }
-
-  Vector2 get_topright_corner() const {
-    return center + Vector2(width / 2, -height / 2);
-  }
-
-  Vector2 get_bottomright_corner() const {
-    return center + Vector2(width / 2, height / 2);
-  }
-
-  Vector2 get_bottomleft_corner() const {
-    return center + Vector2(-width / 2, height / 2);
-  }
+  Room(const Vector2 &position, float width, float height)
+      : Rect(width, height, position) {}
+  Room() : Rect(10.0f, 10.0f) {}
 
   void generate_3d_mesh(std::vector<Vector3> &vertices,
                         std::vector<int32_t> &indices) const {
@@ -95,6 +72,24 @@ public:
       }
     }
   }
+  bool operator==(const Room &other) const {
+    return (position == other.position && width == other.width &&
+            height == other.height &&
+            floor_to_ceiling == other.floor_to_ceiling);
+  }
 };
-} // namespace ewgd
+} // namespace ewdg
+namespace std {
+template <> struct hash<ewdg::Room> {
+  size_t operator()(const ewdg::Room &room) const {
+    size_t hashValue = 17;
+    hashValue = hashValue * 31 + std::hash<float>()(room.position.x);
+    hashValue = hashValue * 31 + std::hash<float>()(room.position.y);
+    hashValue = hashValue * 31 + std::hash<float>()(room.width);
+    hashValue = hashValue * 31 + std::hash<float>()(room.height);
+    hashValue = hashValue * 31 + std::hash<float>()(room.floor_to_ceiling);
+    return hashValue;
+  }
+};
+} // namespace std
 #endif // ROOM_H_
