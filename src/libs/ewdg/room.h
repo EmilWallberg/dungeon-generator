@@ -1,11 +1,13 @@
 #ifndef ROOM_H_
 #define ROOM_H_
 
+#include <iostream>
+#include <vector>
+
 #include "math/vector2.h"
 #include "math/vector3.h"
 #include "physics_engine/rect.h"
-#include <iostream>
-#include <vector>
+
 namespace ewdg {
 class Room : public Rect {
 public:

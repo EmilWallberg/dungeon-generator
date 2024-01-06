@@ -1,7 +1,7 @@
 #ifndef RECT_H_
 #define RECT_H_
 #include "math/vector2.h"
-#include "rigit_body_2d.h"
+#include "physics_engine/rigit_body_2d.h"
 namespace ewdg {
 class Rect : public RigidBody2D {
 public:

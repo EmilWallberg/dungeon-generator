@@ -1,8 +1,7 @@
-
 #ifndef RIGID_BODY_2D_H_
 #define RIGID_BODY_2D_H_
 
-#include "math/vector2.h" // Assuming Vector2 is a separate class
+#include "math/vector2.h"
 #include <iostream>
 
 namespace ewdg {
