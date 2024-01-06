@@ -9,11 +9,18 @@ namespace ewdg {
 struct Vector2 {
   double x, y;
   Vector2(double x, double y) : x(x), y(y) {}
+  Vector2(const Vector2 &vec) : x(vec.x), y(vec.y) {}
   Vector2() {
     x = 0.0f;
     y = 0.0f;
   }
-
+  Vector2 &operator=(const Vector2 &other) {
+    if (this != &other) {
+      x = other.x;
+      y = other.y;
+    }
+    return *this;
+  }
   // Compound assignment operators
   friend void operator+=(Vector2 &v1, const Vector2 &v2) {
     v1.x += v2.x;

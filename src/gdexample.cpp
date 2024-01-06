@@ -68,6 +68,16 @@ void GDExample::_ready() {
   d.generate_rooms(room_to_be_generated, 20, 100);
   d.simulate_rooms(10, 0.5, simulation_timestep);
 
+  d.make_graf_layout(25, 10);
+  std::printf("Graf edges: %zi", d.delaunay.edges.size());
+  for (ewdg::Edge<ewdg::Room> e : d.dungeon_layout) {
+    auto pos1 = ewdg::Vector3(e.from->position.x, 0, e.from->position.y);
+    auto pos2 = ewdg::Vector3(e.to->position.x, 0, e.to->position.y);
+    line(pos1, pos2);
+  }
+
+  d.generate_paths();
+
   auto room_mesh = d.generate_mesh();
 #ifdef DEBUG
   printf("Index array size: %zi\n", room_mesh.second.size());
@@ -99,14 +109,6 @@ void GDExample::_ready() {
   _mesh->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES,
                                  surface_array);
   set_mesh(_mesh);
-
-  d.make_graf_layout(25, 10);
-  std::printf("Graf edges: %zi", d.delaunay.edges.size());
-  for (ewdg::Edge<ewdg::Room> e : d.dungeon_layout) {
-    auto pos1 = ewdg::Vector3(e.from->position.x, 0, e.from->position.y);
-    auto pos2 = ewdg::Vector3(e.to->position.x, 0, e.to->position.y);
-    line(pos1, pos2);
-  }
 }
 
 void GDExample::_process(double delta) {

@@ -2,8 +2,10 @@
 #define EWDG_H_
 #include "math/delaunay_triangulation.h"
 #include "math/vector2.h"
+#include "path.h"
 #include "physics_engine/rect.h"
 #include "room.h"
+
 #include <random>
 #include <vector>
 
@@ -12,6 +14,7 @@ class Dungeon {
 public:
   std::vector<Room> rooms;
   std::vector<Room> main_rooms;
+  std::vector<Path> paths;
   DelaunayTriangulation<Room> delaunay;
   std::set<Edge<Room>> dungeon_layout;
   Vector2 dungeon_bounds = Vector2(250.0f, 250.0f);
@@ -75,10 +78,24 @@ public:
   std::pair<std::vector<Vector3>, std::vector<int32_t>> generate_mesh() {
     std::vector<Vector3> vertices;
     std::vector<int32_t> indices;
-    for (const Room &r : rooms) {
-      r.generate_3d_mesh(vertices, indices);
+    // for (const Room &r : rooms) {
+    // r.generate_3d_mesh(vertices, indices);
+    //}
+    //
+    // for (const Room &r : main_rooms) {
+    // r.generate_3d_mesh(vertices, indices);
+    //}
+
+    for (const Path &p : paths) {
+      p.generate_3d_mesh(vertices, indices);
     }
     return std::make_pair(vertices, indices);
+  }
+
+  void generate_paths() {
+    for (const Edge<Room> &e : dungeon_layout) {
+      paths.push_back(Path(e.from->position, e.to->position));
+    }
   }
 
   void make_graf_layout(int main_room_count, int extra_paths_count) {

@@ -11,7 +11,7 @@
 namespace ewdg {
 class Room : public Rect {
 public:
-  float floor_to_ceiling = 3.0f;
+  double floor_to_ceiling = 3.0f;
 
   Room(const Vector2 &position, float width, float height)
       : Rect(width, height, position) {}
