@@ -81,6 +81,11 @@ struct Vector2 {
   // Magnitude of the vector
   float length() const { return std::sqrt(x * x + y * y); }
 
+  Vector2 perpendicular() const {
+    // Rotate the vector by 90 degrees counterclockwise
+    return {-y, x};
+  }
+
   // Quake III Arena's Fast Inverse Square Root
   static float Q_rsqrt(float number) {
     uint32_t i;

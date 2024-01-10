@@ -12,6 +12,8 @@ namespace ewdg {
 class Room : public Rect {
 public:
   double floor_to_ceiling = 3.0f;
+  std::vector<Vector2> entrance_points;
+  double entrance_width;
 
   Room(const Vector2 &position, float width, float height)
       : Rect(width, height, position) {}

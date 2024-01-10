@@ -81,10 +81,10 @@ public:
     // for (const Room &r : rooms) {
     // r.generate_3d_mesh(vertices, indices);
     //}
-    //
-    // for (const Room &r : main_rooms) {
-    // r.generate_3d_mesh(vertices, indices);
-    //}
+
+    for (const Room &r : main_rooms) {
+      r.generate_3d_mesh(vertices, indices);
+    }
 
     for (const Path &p : paths) {
       p.generate_3d_mesh(vertices, indices);
@@ -94,7 +94,7 @@ public:
 
   void generate_paths() {
     for (const Edge<Room> &e : dungeon_layout) {
-      paths.push_back(Path(e.from->position, e.to->position));
+      paths.push_back(Path(*e.from, *e.to));
     }
   }
 
