@@ -95,11 +95,11 @@ template <typename T> struct Triangle {
 };
 
 template <typename T> struct Edge {
-  const T *from;
-  const T *to;
+  T *from;
+  T *to;
   double weight;
 
-  Edge(const T *f, const T *t, double w) : from(f), to(t), weight(w) {}
+  Edge(T *f, T *t, double w) : from(f), to(t), weight(w) {}
 
   bool operator<(const Edge &other) const { return weight < other.weight; }
 
@@ -117,10 +117,11 @@ public:
 
   std::set<Edge<T>> edges;
 
-  void brutforce_graf(const std::vector<T> &vertices) {
+  void brutforce_graf(std::vector<T> &vertices) {
     bruteforceDelaunayEdges(vertices);
   }
 
+  // FIXME: Dose not produce expected results
   void generate_graf(const std::vector<T> &vertices) {
     if (vertices.size() < 3)
       return;
@@ -263,7 +264,7 @@ private:
   }
 
   // TODO: Replace Temporaty fix
-  void bruteforceDelaunayEdges(const std::vector<T> &vertices) {
+  void bruteforceDelaunayEdges(std::vector<T> &vertices) {
     int n = vertices.size();
     edges.clear();
 

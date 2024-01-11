@@ -1,7 +1,6 @@
 #ifndef ROOM_H_
 #define ROOM_H_
 
-#include <iostream>
 #include <vector>
 
 #include "math/vector2.h"
@@ -12,6 +11,7 @@ namespace ewdg {
 class Room : public Rect {
 public:
   double floor_to_ceiling = 3.0f;
+
   std::vector<Vector2> entrance_points;
   double entrance_width;
 
@@ -60,20 +60,64 @@ public:
     for (auto it = surfaceIndices.rbegin(); it != surfaceIndices.rend(); ++it) {
       indices.push_back(baseIndex + *it);
     }
+    baseIndex = vertices.size();
 
     for (int i = 0; i < 4; ++i) {
       int next = (i + 1) % 4;
-      baseIndex = vertices.size();
-      // Wall vertices for each wall
+      Vector2 wallStart = {floorVertices[i].x, floorVertices[i].z};
+      Vector2 wallEnd = {floorVertices[next].x, floorVertices[next].z};
+
       vertices.push_back(floorVertices[i]);
       vertices.push_back(ceilingVertices[i]);
-      vertices.push_back(ceilingVertices[next]);
-      vertices.push_back(floorVertices[next]);
 
-      // Push vertices and indices for each wall into the main list
-      for (const auto &index : surfaceIndices) {
+      Vector2 lineDirection = (wallEnd - wallStart).normalize();
+      Vector2 wallDirection = lineDirection.perpendicular();
+
+      // TODO: Handle paths not direcly connecting to rooms (paths that pass
+      // though rooms before reaching their destinaction)
+      // TODO: Handle overlapping entrances
+      //  Check for entrance points along the wall
+
+      for (const auto &entrancePoint : entrance_points) {
+        // Calculate distance from the wall start to the entrance point along
+        // the wall direction
+        double distance = (wallStart - entrancePoint).length();
+
+        // If entrance point is along this wall segment
+        if (Vector2::is_point_on_line(wallStart, wallEnd, entrancePoint)) {
+
+          // Calculate vertices for the opening
+          Vector2 openingStart =
+              wallStart +
+              lineDirection *
+                  ((wallStart - entrancePoint).length() - entrance_width / 2);
+          Vector2 openingEnd = openingStart + lineDirection * entrance_width;
+
+          // Add the opening vertices
+          vertices.push_back({openingStart.x, 0.0f, openingStart.y});
+          vertices.push_back(
+              {openingStart.x, floor_to_ceiling, openingStart.y});
+
+          vertices.push_back({openingEnd.x, 0.0f, openingEnd.y});
+          vertices.push_back({openingEnd.x, floor_to_ceiling, openingEnd.y});
+
+          for (const auto &index : {0, 1, 2, 1, 3, 2}) {
+            indices.push_back(baseIndex + index);
+          }
+          // Move the base indeces in preperation for next wall segment
+          baseIndex += 4;
+        }
+      }
+
+      // Fill in the rest of the wall
+      vertices.push_back(floorVertices[next]);
+      vertices.push_back(ceilingVertices[next]);
+
+      for (const auto &index : {0, 1, 2, 1, 3, 2}) {
         indices.push_back(baseIndex + index);
       }
+      // Move the base indeces in preperation for next wall segment
+      baseIndex = vertices.size();
     }
   }
   bool operator==(const Room &other) const {

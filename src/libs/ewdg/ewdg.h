@@ -12,12 +12,12 @@
 namespace ewdg {
 class Dungeon {
 public:
-  std::vector<Room> rooms;
-  std::vector<Room> main_rooms;
-  std::vector<Path> paths;
+  std::vector<Room> rooms{};
+  std::vector<Room> main_rooms{};
+  std::vector<Path> paths{};
   DelaunayTriangulation<Room> delaunay;
-  std::set<Edge<Room>> dungeon_layout;
-  Vector2 dungeon_bounds = Vector2(250.0f, 250.0f);
+  std::set<Edge<Room>> dungeon_layout{};
+  Vector2 dungeon_bounds = Vector2(50.0f, 50.0f);
 
   void generate_rooms(int room_count, float min_width, float max_width) {
     for (int i = 0; i < room_count; i++) {
@@ -75,12 +75,17 @@ public:
     std::printf("Physics simulation done\n");
 #endif
   }
-  std::pair<std::vector<Vector3>, std::vector<int32_t>> generate_mesh() {
+
+  // TODO: Make mesh class for easyer mesh operations
+  std::pair<std::vector<Vector3>, std::vector<int32_t>>
+  generate_mesh(bool main_rooms_only) {
     std::vector<Vector3> vertices;
     std::vector<int32_t> indices;
-    // for (const Room &r : rooms) {
-    // r.generate_3d_mesh(vertices, indices);
-    //}
+    if (!main_rooms_only) {
+      for (const Room &r : rooms) {
+        r.generate_3d_mesh(vertices, indices);
+      }
+    }
 
     for (const Room &r : main_rooms) {
       r.generate_3d_mesh(vertices, indices);

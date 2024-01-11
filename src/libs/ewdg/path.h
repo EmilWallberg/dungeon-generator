@@ -16,8 +16,7 @@ public:
 
   bool straight_path;
 
-  Path(const Room &r1, const Room &r2, double width = 2,
-       double floor_to_ceiling = 3)
+  Path(Room &r1, Room &r2, double width = 2, double floor_to_ceiling = 3)
       : width(width), floor_to_ceiling(floor_to_ceiling) {
 
     double overlap_x =
@@ -72,6 +71,9 @@ public:
       }
       intersektion = {end.x, start.y};
     }
+    r1.entrance_points.push_back(start);
+    r2.entrance_points.push_back(end);
+    r1.entrance_width = r2.entrance_width = width;
   }
 
   // TODO FIXME: Check for intersections with rooms and other paths and do some
@@ -114,7 +116,8 @@ public:
       mesh_from_corners(bottom_left, bottom_right, top_left, top_right,
                         vertices.size());
     } else {
-      // TODO: Generate L shaped path
+
+      // TODO: Clean up dublicated code
 
       // First segment
       Vector2 path_dir = (intersektion - start).normalize();
@@ -128,7 +131,7 @@ public:
 
       Vector2 intersektion_offset =
           path_dir *
-          (start.x < end.x && start.y < end.y ? -half_width : half_width);
+          (path_dir.cross(end - start) < 0 ? half_width : -half_width);
 
       Vector2 top_left =
           intersektion - perpendicular_dir * half_width - intersektion_offset;
@@ -148,7 +151,7 @@ public:
       bottom_right = end + perpendicular_dir * half_width;
       intersektion_offset =
           path_dir *
-          (start.x < end.x && start.y < end.y ? half_width : -half_width);
+          (path_dir.cross(start - end) < 0 ? half_width : -half_width);
 
       top_left =
           intersektion - perpendicular_dir * half_width - intersektion_offset;

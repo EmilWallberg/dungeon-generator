@@ -5,11 +5,11 @@
 namespace ewdg {
 class Vector3 {
 public:
-  float x, y, z;
+  double x, y, z;
 
   // Constructors
   Vector3() : x(0.0f), y(0.0f), z(0.0f) {}
-  Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
+  Vector3(double x, double y, double z) : x(x), y(y), z(z) {}
 
   // Vector addition
   Vector3 operator+(const Vector3 &other) const {
@@ -22,12 +22,12 @@ public:
   }
 
   // Scalar multiplication
-  Vector3 operator*(float scalar) const {
+  Vector3 operator*(double scalar) const {
     return Vector3(x * scalar, y * scalar, z * scalar);
   }
 
   // Dot product
-  float dot(const Vector3 &other) const {
+  double dot(const Vector3 &other) const {
     return x * other.x + y * other.y + z * other.z;
   }
 
@@ -37,12 +37,12 @@ public:
                    x * other.y - y * other.x);
   }
 
-  // Magnitude (length) of the vector
-  float magnitude() const { return sqrt(x * x + y * y + z * z); }
+  // Length (magnitude) of the vector
+  double length() const { return sqrt(x * x + y * y + z * z); }
 
   // Normalize the vector
   Vector3 normalize() const {
-    float mag = magnitude();
+    double mag = length();
     if (mag != 0.0f) {
       return *this * (1.0f / mag);
     }

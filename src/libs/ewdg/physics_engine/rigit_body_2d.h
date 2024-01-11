@@ -24,7 +24,7 @@ public:
 
     // Update velocity using the calculated acceleration
     velocity += acceleration * delta;
-    if (velocity.length() < 0.0001)
+    if (velocity.length() < 0.01)
       velocity = Vector2(0, 0);
   }
   void simulate(float delta) {

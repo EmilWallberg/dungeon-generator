@@ -12,7 +12,7 @@ using namespace godot;
 
 GDExample::GDExample() {
   // Initialize any variables here.
-  time_passed = 0.0;
+  timer = 10;
 }
 
 PackedVector3Array convertVector(const std::vector<ewdg::Vector3> &vec) {
@@ -42,12 +42,12 @@ GDExample::~GDExample() {
 }
 
 void GDExample::line(ewdg::Vector3 pos1, ewdg::Vector3 pos2, Color c) {
-  auto mesh_instace = new MeshInstance3D();
+  auto mesh_instance = new MeshInstance3D();
   auto immediate_mesh = new ImmediateMesh();
   auto material = new ORMMaterial3D();
 
-  mesh_instace->set_mesh(immediate_mesh);
-  mesh_instace->set_cast_shadows_setting(
+  mesh_instance->set_mesh(immediate_mesh);
+  mesh_instance->set_cast_shadows_setting(
       GeometryInstance3D::ShadowCastingSetting::SHADOW_CASTING_SETTING_OFF);
 
   immediate_mesh->surface_begin(Mesh::PRIMITIVE_LINES, material);
@@ -59,49 +59,29 @@ void GDExample::line(ewdg::Vector3 pos1, ewdg::Vector3 pos2, Color c) {
       BaseMaterial3D::ShadingMode::SHADING_MODE_UNSHADED);
   material->set_albedo(c);
 
-  add_child(mesh_instace);
+  add_child(mesh_instance);
+
+  mesh_instances.push_back(mesh_instance);
 }
 
 void GDExample::_ready() {
   auto surface_array = Array();
   surface_array.resize(Mesh::ArrayType::ARRAY_MAX);
-  d.generate_rooms(room_to_be_generated, 20, 100);
-  d.simulate_rooms(10, 0.5, simulation_timestep);
+  d.generate_rooms(room_to_be_generated, min_max_room_width.x,
+                   min_max_room_width.y);
+  // d.simulate_rooms(repultion_force, friction_force, simulation_timestep);
+  //
+  // d.make_graf_layout(25, 10);
+  // std::printf("Graf edges: %zi", d.delaunay.edges.size());
+  // for (ewdg::Edge<ewdg::Room> e : d.dungeon_layout) {
+  // auto pos1 = ewdg::Vector3(e.from->position.x, 0, e.from->position.y);
+  // auto pos2 = ewdg::Vector3(e.to->position.x, 0, e.to->position.y);
+  // line(pos1, pos2);
+  //}
+  //
+  // d.generate_paths();
 
-  d.make_graf_layout(25, 10);
-  std::printf("Graf edges: %zi", d.delaunay.edges.size());
-  for (ewdg::Edge<ewdg::Room> e : d.dungeon_layout) {
-    auto pos1 = ewdg::Vector3(e.from->position.x, 0, e.from->position.y);
-    auto pos2 = ewdg::Vector3(e.to->position.x, 0, e.to->position.y);
-    line(pos1, pos2);
-  }
-
-  d.generate_paths();
-
-  auto room_mesh = d.generate_mesh();
-#ifdef DEBUG
-  printf("Index array size: %zi\n", room_mesh.second.size());
-
-  // Print Vertex Array
-  printf("Vertex Array:\n");
-  for (const auto &vec : room_mesh.first) {
-    printf("(%f, %f, %f)\n", vec.x, vec.y, vec.z);
-  }
-
-  // Convert and Print Index Array
-  auto godotVector = convertVector(room_mesh.first);
-  printf("Converted Vertex Array:\n");
-  for (int i = 0; i < godotVector.size(); ++i) {
-    godot::Vector3 godotVec = godotVector[i];
-    printf("(%f, %f, %f)\n", godotVec.x, godotVec.y, godotVec.z);
-  }
-
-  // Print Index Array
-  printf("Index Array:\n");
-  for (int i = 0; i < room_mesh.second.size(); ++i) {
-    printf("%i\n", room_mesh.second[i]);
-  }
-#endif
+  auto room_mesh = d.generate_mesh(true);
 
   surface_array[Mesh::ArrayType::ARRAY_VERTEX] = convertVector(room_mesh.first);
   surface_array[Mesh::ArrayType::ARRAY_INDEX] = convertInt(room_mesh.second);
@@ -112,36 +92,15 @@ void GDExample::_ready() {
 }
 
 void GDExample::_process(double delta) {
-  time_passed += delta;
+  if (dungeon_done)
+    return;
 
-  if (false && !simulation_done) {
-    simulation_done = d.time_step_rooms(10, 1, simulation_timestep);
+  timer -= delta;
+  if (!simulation_done) {
+    simulation_done =
+        d.time_step_rooms(repultion_force, friction_force, simulation_timestep);
 
-    auto room_mesh = d.generate_mesh();
-#ifdef DEBUG
-    printf("Index array size: %zi\n", room_mesh.second.size());
-
-    // Print Vertex Array
-    printf("Vertex Array:\n");
-    for (const auto &vec : room_mesh.first) {
-      printf("(%f, %f, %f)\n", vec.x, vec.y, vec.z);
-    }
-
-    // Convert and Print Index Array
-    auto godotVector = convertVector(room_mesh.first);
-    printf("Converted Vertex Array:\n");
-    for (int i = 0; i < godotVector.size(); ++i) {
-      godot::Vector3 godotVec = godotVector[i];
-      printf("(%f, %f, %f)\n", godotVec.x, godotVec.y, godotVec.z);
-    }
-
-    // Print Index Array
-    printf("Index Array:\n");
-    for (int i = 0; i < room_mesh.second.size(); ++i) {
-      printf("%i\n", room_mesh.second[i]);
-    }
-#endif
-
+    auto room_mesh = d.generate_mesh(false);
     auto surface_array = Array();
     surface_array.resize(Mesh::ArrayType::ARRAY_MAX);
     surface_array[Mesh::ArrayType::ARRAY_VERTEX] =
@@ -151,5 +110,35 @@ void GDExample::_process(double delta) {
     _mesh->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES,
                                    surface_array);
     set_mesh(_mesh);
+  } else if (!graf_done) {
+    d.make_graf_layout(25, 10);
+    std::printf("Graf edges: %zi", d.delaunay.edges.size());
+    for (ewdg::Edge<ewdg::Room> e : d.dungeon_layout) {
+      auto pos1 = ewdg::Vector3(e.from->position.x, 0, e.from->position.y);
+      auto pos2 = ewdg::Vector3(e.to->position.x, 0, e.to->position.y);
+      line(pos1, pos2);
+    }
+
+    d.generate_paths();
+    graf_done = true;
+    timer = 2;
+  } else if (!dungeon_done && timer < 0) {
+    auto room_mesh = d.generate_mesh(true);
+    auto surface_array = Array();
+    surface_array.resize(Mesh::ArrayType::ARRAY_MAX);
+    surface_array[Mesh::ArrayType::ARRAY_VERTEX] =
+        convertVector(room_mesh.first);
+    surface_array[Mesh::ArrayType::ARRAY_INDEX] = convertInt(room_mesh.second);
+    auto _mesh = new ArrayMesh();
+    _mesh->add_surface_from_arrays(Mesh::PrimitiveType::PRIMITIVE_TRIANGLES,
+                                   surface_array);
+    set_mesh(_mesh);
+    for (auto &l : mesh_instances) {
+      remove_child(l);
+      delete l;
+    }
+
+    mesh_instances.clear();
+    dungeon_done = true;
   }
 }

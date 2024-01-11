@@ -112,10 +112,28 @@ struct Vector2 {
       return {0, 0};
     }
   }
-
+  float cross(const Vector2 &v1) { return x * v1.y - y * v1.x; }
   // Dot product function
-  static float dot(const Vector2 &v1, const Vector2 &v2) {
-    return v1.x * v2.x + v1.y * v2.y;
+  float dot(const Vector2 &v1) { return x * v1.x + y * v1.y; }
+
+  static float distance_point_to_line(const Vector2 &p0, const Vector2 &p1,
+                                      const Vector2 &p2) {
+    float x0 = p0.x, y0 = p0.y;
+    float x1 = p1.x, y1 = p1.y;
+    float x2 = p2.x, y2 = p2.y;
+
+    // Calculate the distance from p2 to the line formed by p0 and p1
+    float distance = std::abs((y2 - y0) * (x1 - x0) - (x2 - x0) * (y1 - y0)) /
+                     sqrt((y1 - y0) * (y1 - y0) + (x1 - x0) * (x1 - x0));
+
+    return distance;
+  }
+
+  static bool is_point_on_line(const Vector2 &p0, const Vector2 &p1,
+                               const Vector2 &p2, float accuracy = 0.001) {
+    // Check if the distance from p2 to the line is within the specified
+    // accuracy
+    return distance_point_to_line(p0, p1, p2) < accuracy;
   }
 
   // Comparison operators
