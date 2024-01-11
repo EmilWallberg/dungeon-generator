@@ -77,7 +77,10 @@ struct Vector2 {
       return {0, 0};
     }
   }
-
+  friend void swap(Vector2 &lhs, Vector2 &rhs) {
+    std::swap(lhs.x, rhs.x);
+    std::swap(lhs.y, rhs.y);
+  }
   // Magnitude of the vector
   float length() const { return std::sqrt(x * x + y * y); }
 

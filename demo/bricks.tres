@@ -1,0 +1,27 @@
+[gd_resource type="VisualShader" load_steps=2 format=3 uid="uid://58sb3nnqx0ij"]
+
+[sub_resource type="VisualShaderNodeInput" id="VisualShaderNodeInput_r4v5h"]
+input_name = "vertex"
+
+[resource]
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_lambert, specular_schlick_ggx;
+
+
+
+
+void fragment() {
+// Input:2
+	vec3 n_out2p0 = VERTEX;
+
+
+// Output:0
+	ALBEDO = n_out2p0;
+
+
+}
+"
+nodes/fragment/0/position = Vector2(340, 40)
+nodes/fragment/2/node = SubResource("VisualShaderNodeInput_r4v5h")
+nodes/fragment/2/position = Vector2(-140, 120)
+nodes/fragment/connections = PackedInt32Array(2, 0, 0, 0)

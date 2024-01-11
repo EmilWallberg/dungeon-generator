@@ -1,6 +1,7 @@
 #ifndef ROOM_H_
 #define ROOM_H_
 
+#include <algorithm>
 #include <vector>
 
 #include "math/vector2.h"
@@ -77,8 +78,18 @@ public:
       // though rooms before reaching their destinaction)
       // TODO: Handle overlapping entrances
       //  Check for entrance points along the wall
+      // Sort entrance points based on their distance from the wall start
+      std::vector<Vector2> sorted_entrance_points =
+          entrance_points; // Copy the original vector
 
-      for (const auto &entrancePoint : entrance_points) {
+      // Sort the copied vector
+      std::sort(sorted_entrance_points.begin(), sorted_entrance_points.end(),
+                [&](const Vector2 &a, const Vector2 &b) {
+                  double distanceA = (wallStart - a).length();
+                  double distanceB = (wallStart - b).length();
+                  return distanceA < distanceB;
+                });
+      for (const auto &entrancePoint : sorted_entrance_points) {
         // Calculate distance from the wall start to the entrance point along
         // the wall direction
         double distance = (wallStart - entrancePoint).length();
