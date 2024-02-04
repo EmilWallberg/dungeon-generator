@@ -4,7 +4,6 @@
 #include "math/vector2.h"
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <limits>
 #include <set>
 #include <unordered_map>
@@ -242,6 +241,8 @@ private:
     triangles = std::move(new_triangles);
   }
 
+  // TODO: Replace Temporaty fix
+  // =======================================================================
   bool inCircle(const Vector2 &a, const Vector2 &b, const Vector2 &c,
                 const Vector2 &d) {
     double det = (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
@@ -263,7 +264,6 @@ private:
     return distance_sq <= radius_sq;
   }
 
-  // TODO: Replace Temporaty fix
   void bruteforceDelaunayEdges(std::vector<T> &vertices) {
     int n = vertices.size();
     edges.clear();
@@ -296,6 +296,7 @@ private:
       }
     }
   }
+  // =======================================================================
 
   double distance(const T *vertex1, const T *vertex2) {
     return (vertex1->position - vertex2->position).length();

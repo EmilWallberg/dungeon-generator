@@ -2,6 +2,7 @@
 #define EWDG_H_
 #include "math/delaunay_triangulation.h"
 #include "math/vector2.h"
+#include "mesh/mesh.h"
 #include "path.h"
 #include "physics_engine/rect.h"
 #include "room.h"
